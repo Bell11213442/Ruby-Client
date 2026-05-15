@@ -1,0 +1,10 @@
+{
+  "girl": {
+    "sounds": [
+      {
+        "name": "radium:girl",
+        "stream": true
+      }
+    ]
+  }
+}
