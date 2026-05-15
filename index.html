@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RubyClient -- Free Open-Source Fabric 1.21.1 Client</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ruby:        #d0142c;
+      --ruby-bright: #ff2244;
+      --ruby-deep:   #8b0a1a;
+      --ruby-glow:   rgba(208, 20, 44, 0.35);
+      --bg:          #09090c;
+      --bg-2:        #0f0f14;
+      --bg-3:        #14141c;
+      --surface:     #1a1a24;
+      --surface-2:   #21212e;
+      --border:      rgba(208, 20, 44, 0.18);
+      --border-dim:  rgba(255,255,255,0.06);
+      --text:        #e8e8f0;
+      --text-muted:  #7b7b94;
+      --text-dim:    #4a4a60;
+      --white:       #ffffff;
+      --green:       #22c55e;
+      --font-head:   'Orbitron', sans-serif;
+      --font-body:   'Exo 2', sans-serif;
+      --font-mono:   'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--ruby-deep); border-radius: 3px; }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+      background: rgba(9,9,12,0.82);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.55rem;
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .nav-logo .gem {
+      width: 24px; height: 24px;
+      display: inline-block;
+    }
+
+    .nav-logo span { color: var(--ruby-bright); }
+
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--ruby-bright); }
+
+    .nav-cta {
+      font-family: var(--font-head);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--ruby);
+      color: var(--white);
+      border: none;
+      padding: 0.55rem 1.3rem;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: var(--ruby-bright);
+      box-shadow: 0 0 18px var(--ruby-glow);
+    }
+
+    /* ── CANVAS ── */
+    #particle-canvas {
+      position: absolute; inset: 0; z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 100px 2rem 80px;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* gem glow backdrop */
+    .hero-glow {
+      position: absolute;
+      top: 30%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(208,20,44,0.14) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* diagonal slash bg */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 120px;
+      background: var(--bg-2);
+      clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%);
+      z-index: 1;
+    }
+
+    .hero-inner { position: relative; z-index: 2; max-width: 780px; }
+
+    .badge-row {
+      display: flex; justify-content: center; gap: 0.6rem;
+      flex-wrap: wrap; margin-bottom: 2rem;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 100px;
+      border: 1px solid;
+      font-weight: 500;
+    }
+
+    .badge-green {
+      color: var(--green);
+      border-color: rgba(34,197,94,0.35);
+      background: rgba(34,197,94,0.07);
+    }
+
+    .badge-ruby {
+      color: var(--ruby-bright);
+      border-color: rgba(255,34,68,0.35);
+      background: rgba(255,34,68,0.07);
+    }
+
+    .badge-white {
+      color: var(--text-muted);
+      border-color: var(--border-dim);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .badge svg { width: 11px; height: 11px; }
+
+    .hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(2.6rem, 7vw, 5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      margin-bottom: 0.3em;
+    }
+
+    .hero h1 .accent {
+      color: var(--ruby-bright);
+      text-shadow: 0 0 40px var(--ruby-glow);
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      font-family: var(--font-head);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.9rem 2.2rem;
+      background: var(--ruby);
+      color: var(--white);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, box-shadow 0.25s, transform 0.15s;
+      box-shadow: 0 4px 24px rgba(208,20,44,0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--ruby-bright);
+      box-shadow: 0 6px 36px rgba(255,34,68,0.45);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      font-family: var(--font-head);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.9rem 2.2rem;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-dim);
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, transform 0.15s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--ruby);
+      color: var(--ruby-bright);
+      transform: translateY(-2px);
+    }
+
+    /* ── GEM SVG ── */
+    .hero-gem {
+      margin-bottom: 2rem;
+      animation: gem-float 4s ease-in-out infinite;
+    }
+
+    @keyframes gem-float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    /* ── SECTION BASE ── */
+    section { position: relative; z-index: 2; }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ruby-bright);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.75;
+      max-width: 520px;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      background: var(--bg-2);
+      padding: 100px 2rem;
+    }
+
+    .features-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .features-head {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .features-head .section-desc { margin: 0 auto; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feat-card {
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 2rem 1.75rem;
+      transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--ruby), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feat-card:hover {
+      border-color: var(--border);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    .feat-card:hover::before { opacity: 1; }
+
+    .feat-icon {
+      width: 44px; height: 44px;
+      background: rgba(208,20,44,0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.2rem;
+      font-size: 1.3rem;
+    }
+
+    .feat-title {
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      margin-bottom: 0.6rem;
+    }
+
+    .feat-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── OPEN SOURCE ── */
+    .opensource {
+      background: var(--bg);
+      padding: 100px 2rem;
+      overflow: hidden;
+    }
+
+    .opensource-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .os-visual {
+      position: relative;
+    }
+
+    .code-block {
+      background: var(--bg-3);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.7;
+    }
+
+    .code-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .code-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    .code-dot-red   { background: #ff5f57; }
+    .code-dot-yellow{ background: #febc2e; }
+    .code-dot-green { background: #28c840; }
+
+    .code-filename {
+      margin-left: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .code-body { padding: 1.25rem 1.5rem; }
+
+    .line { display: block; white-space: pre; }
+    .kw  { color: #ff79c6; }
+    .fn  { color: #50fa7b; }
+    .st  { color: #f1fa8c; }
+    .cm  { color: var(--text-dim); font-style: italic; }
+    .nu  { color: #bd93f9; }
+    .ty  { color: #8be9fd; }
+
+    .os-label {
+      position: absolute;
+      top: -14px; right: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      padding: 0.25rem 0.7rem;
+      border-radius: 100px;
+    }
+
+    .os-text .section-desc { margin-bottom: 1.5rem; }
+
+    .os-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .os-points li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .os-points li::before {
+      content: '◆';
+      color: var(--ruby-bright);
+      font-size: 0.5rem;
+      margin-top: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    /* ── REQUIREMENTS ── */
+    .requirements {
+      background: var(--bg-2);
+      padding: 100px 2rem;
+    }
+
+    .req-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .req-inner .section-desc { margin: 0 auto 3rem; }
+
+    .req-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .req-card {
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .req-card.required {
+      border-color: rgba(208,20,44,0.3);
+    }
+
+    .req-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+      border-color: var(--ruby);
+    }
+
+    .req-required-badge {
+      position: absolute;
+      top: -11px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ruby-bright);
+      background: var(--bg-2);
+      border: 1px solid rgba(208,20,44,0.35);
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .req-icon { font-size: 2.2rem; margin-bottom: 0.9rem; display: block; }
+
+    .req-name {
+      font-family: var(--font-head);
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .req-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .req-version {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--ruby-bright);
+      background: rgba(208,20,44,0.1);
+      border: 1px solid rgba(208,20,44,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .install-steps {
+      text-align: left;
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 2rem 2.5rem;
+    }
+
+    .install-steps h3 {
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .steps-list {
+      list-style: none;
+      counter-reset: steps;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .steps-list li {
+      counter-increment: steps;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .steps-list li::before {
+      content: counter(steps);
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      color: var(--ruby-bright);
+      background: rgba(208,20,44,0.12);
+      border: 1px solid rgba(208,20,44,0.25);
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .steps-list li strong { color: var(--text); }
+
+    /* ── FREE BANNER ── */
+    .free-banner {
+      background: linear-gradient(135deg, var(--ruby-deep) 0%, #3d0010 50%, var(--ruby-deep) 100%);
+      border-top: 1px solid rgba(208,20,44,0.35);
+      border-bottom: 1px solid rgba(208,20,44,0.35);
+      padding: 70px 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .free-banner::before {
+      content: 'FREE';
+      position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: var(--font-head);
+      font-size: 18vw;
+      font-weight: 900;
+      color: rgba(255,255,255,0.03);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .free-banner h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: 0.02em;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+
+    .free-banner p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 300;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border-dim);
+      padding: 3rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .footer-logo span { color: var(--ruby-bright); }
+
+    .footer-links {
+      display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--ruby-bright); }
+
+    .footer-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .opensource-inner { grid-template-columns: 1fr; }
+      .os-visual { order: -1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="gem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L4 8L2 14L12 22L22 14L20 8L12 2Z" fill="#d0142c" opacity="0.9"/>
+      <path d="M12 2L4 8H20L12 2Z" fill="#ff2244"/>
+      <path d="M4 8L2 14L12 22L12 8L4 8Z" fill="#8b0a1a"/>
+      <path d="M20 8L22 14L12 22L12 8L20 8Z" fill="#c01228"/>
+      <path d="M12 2L12 8L20 8L12 2Z" fill="#ff4466" opacity="0.6"/>
+    </svg>
+    Ruby<span>Client</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#opensource">Open Source</a></li>
+    <li><a href="#requirements">Install</a></li>
+  </ul>
+  <a href="https://github.com/Bell11213442/Ruby-Client/releases/download/V1.4.6/RubyClient-1.4.6.jar" class="nav-cta">Download</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="particle-canvas"></canvas>
+  <div class="hero-glow"></div>
+
+  <div class="hero-inner">
+    <div class="hero-gem">
+      <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 20px rgba(208,20,44,0.6))">
+        <path d="M45 5L15 30L8 52L45 85L82 52L75 30L45 5Z" fill="#d0142c"/>
+        <path d="M45 5L15 30H75L45 5Z" fill="#ff3355"/>
+        <path d="M15 30L8 52L45 85V30L15 30Z" fill="#6b0a15"/>
+        <path d="M75 30L82 52L45 85V30L75 30Z" fill="#a50f22"/>
+        <path d="M45 5L45 30L75 30L45 5Z" fill="#ff6677" opacity="0.5"/>
+        <path d="M45 30L55 52L45 65L35 52L45 30Z" fill="white" opacity="0.12"/>
+      </svg>
+    </div>
+
+    <div class="badge-row">
+      <span class="badge badge-green">
+        <svg viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="4"/></svg>
+        100% Free
+      </span>
+      <span class="badge badge-ruby">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 1L7.5 4.5L11 5L8.5 7.5L9 11L6 9.5L3 11L3.5 7.5L1 5L4.5 4.5L6 1Z"/></svg>
+        Open Source
+      </span>
+      <span class="badge badge-white">Fabric 1.21.1</span>
+    </div>
+
+    <h1>The Client That<br/>Belongs to <span class="accent">Everyone</span></h1>
+
+    <p class="hero-sub">
+      RubyClient is a free, open-source Minecraft client for Fabric 1.21.1 --
+      built in public, modified freely, and owned by the community.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="https://github.com/Bell11213442/Ruby-Client/releases/download/V1.4.6/RubyClient-1.4.6.jar" class="btn-primary">Download Free</a>
+      <a href="https://github.com/Bell11213442/Ruby-Client/" class="btn-secondary">View Source</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="features-head reveal">
+      <div class="section-label">What it does</div>
+      <h2 class="section-title">Packed with features,<br/>zero price tag</h2>
+      <p class="section-desc">Everything you need in a Minecraft client, with nothing hidden behind a paywall. Ever.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">Modules</div>
+        <p class="feat-desc">43 Total Modules<br>Combat, CPvP, Utils, Render, BaseFinding, And many more...</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🎨</div>
+        <div class="feat-title">HUD Customization</div>
+        <p class="feat-desc">Drag-and-drop HUD editor<br>Move, resize, Toggle</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🔭</div>
+        <div class="feat-title">Visual Modules</div>
+        <p class="feat-desc">Fullbright, Tracers, Nether xray, BlockESP</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🛡️</div>
+        <div class="feat-title">Combat/CPvP Modules</div>
+        <p class="feat-desc">Auto Totem, Auto Crystal, Kill Aura, Reach, Extended Hitboxes, CPS counter, Totem Count</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🧭</div>
+        <div class="feat-title">Base Hunting</div>
+        <p class="feat-desc">Goliath Map, Under Deepslate View, Auto Mine, RTP base finder</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🔧</div>
+        <div class="feat-title">OpenSource And API</div>
+        <p class="feat-desc">Full viewable SourceCode, Full Compatibility, minimal dependecies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPEN SOURCE -->
+<section class="opensource" id="opensource">
+  <div class="opensource-inner">
+    <div class="os-visual reveal">
+      <span class="os-label">MIT Licensed</span>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dot code-dot-red"></div>
+          <div class="code-dot code-dot-yellow"></div>
+          <div class="code-dot code-dot-green"></div>
+          <span class="code-filename">RubyClient.java</span>
+        </div>
+        <div class="code-body">
+<span class="line"><span class="cm">// RubyClient -- Free & Open Source</span></span>
+<span class="line"><span class="cm">// github.com/RubyDevs/rubyclient</span></span>
+<span class="line"> </span>
+<span class="line"><span class="kw">@Environment</span>(<span class="ty">EnvType</span>.CLIENT)</span>
+<span class="line"><span class="kw">public class</span> <span class="ty">RubyClientMod</span> <span class="kw">implements</span> <span class="ty">ModInitializer</span> {</span>
+<span class="line"> </span>
+<span class="line">  <span class="kw">public static final</span> <span class="ty">String</span> MOD_ID = <span class="st">"rubyclient"</span>;</span>
+<span class="line">  <span class="kw">public static final</span> <span class="ty">Logger</span> LOGGER =</span>
+<span class="line">      <span class="ty">LoggerFactory</span>.<span class="fn">getLogger</span>(MOD_ID);</span>
+<span class="line"> </span>
+<span class="line">  <span class="kw">@Override</span></span>
+<span class="line">  <span class="kw">public void</span> <span class="fn">onInitialize</span>() {</span>
+<span class="line">    LOGGER.<span class="fn">info</span>(<span class="st">"RubyClient loaded. Free forever."</span>);</span>
+<span class="line">    <span class="ty">ModuleManager</span>.<span class="fn">init</span>();</span>
+<span class="line">    <span class="ty">HudRenderer</span>.<span class="fn">register</span>();</span>
+<span class="line">  }</span>
+<span class="line">}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="os-text reveal">
+      <div class="section-label">Open Source</div>
+      <h2 class="section-title">Built in public.<br/>Forked freely.</h2>
+      <p class="section-desc">RubyClient's entire code lives on GitHub and GitLab under the MIT license. You can: Read it, fork it, improve it, ship it.</p>
+
+      <ul class="os-points" style="margin-top: 1.75rem;">
+        <li>Full source code publicly available on GitHub & GitLab</li>
+        <li>MIT licensed -- use it however you want</li>
+        <li>Community contributions welcomed and merged</li>
+        <li>No telemetry, no tracking, no hidden code</li>
+        <li>Reproducible builds -- compile it yourself and verify</li>
+      </ul>
+
+      <a href="https://github.com/Bell11213442/Ruby-Client/" class="btn-secondary" style="margin-top: 2rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FREE BANNER -->
+<div class="free-banner">
+  <h2>Zero cost. Forever.</h2>
+  <p>RubyClient will always be free to download and use. No premium tiers, no subscriptions, no feature locks.</p>
+  <a href="#requirements" class="btn-primary" style="position:relative">Get it Now -- It's Free</a>
+</div>
+
+<!-- REQUIREMENTS + INSTALL -->
+<section class="requirements" id="requirements">
+  <div class="req-inner">
+    <div class="section-label reveal">Requirements & Install</div>
+    <h2 class="section-title reveal">Two mods. That's it.</h2>
+    <p class="section-desc reveal">RubyClient runs on FabricMC. Make sure you have the following before installing.</p>
+      <div class="req-card required reveal">
+        <span class="req-required-badge">Required</span>
+        <span class="req-icon">📦</span>
+        <div class="req-name">Fabric API</div>
+        <p class="req-desc">The official API library for Fabric mods. Drop this in your mods folder alongside RubyClient.</p>
+        <span class="req-version">for 1.21.1</span>
+      </div>
+      <div class="req-card reveal">
+        <span class="req-icon">💎</span>
+        <div class="req-name">RubyClient</div>
+        <p class="req-desc">The client mod itself. Drop the .jar into your mods folder and launch Minecraft 1.21.1.</p>
+        <span class="req-version">Latest</span>
+      </div>
+    </div>
+
+    <div class="install-steps reveal" style="margin-top: 2rem;">
+      <h3>Installation Guide</h3>
+      <ol class="steps-list">
+        <li>Install <strong>Minecraft 1.21.1</strong> and launch it at least once to generate game files.</li>
+        <li>Download and run the <strong>Fabric Installer</strong> from <strong>fabricmc.net</strong>, selecting version 1.21.1.</li>
+        <li>Download <strong>Fabric API</strong> for 1.21.1 from Modrinth or CurseForge and place the .jar in your <code style="font-family:var(--font-mono);color:var(--ruby-bright)">.minecraft/mods</code> folder.</li>
+        <li>Download the <strong>RubyClient .jar</strong> and drop it into the same mods folder.</li>
+        <li>Launch Minecraft with the <strong>Fabric 1.21.1</strong> profile. RubyClient will be ready to go.</li>
+      </ol>
+    </div>
+
+    <div style="margin-top: 2.5rem;" class="reveal">
+      <a href="https://github.com/Bell11213442/Ruby-Client/releases/download/V1.4.6/RubyClient-1.4.6.jar" class="btn-primary" style="display:inline-flex;align-items:center;gap:0.6rem;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17v3a2 2 0 002 2h16a2 2 0 002-2v-3"/></svg>
+        Download RubyClient
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Ruby<span>Client</span> - Fabric 1.21.1</div>
+    <ul class="footer-links">
+      <li><a href="https://github.com/Bell11213442/Ruby-Client/">GitHub</a></li>
+      <li><a href="#">Modrinth</a></li>
+      <li><a href="https://discord.com/invite/JsEd4ZhRk7">Discord</a></li>
+      <li><a href="https://mit-license.org/">License (MIT)</a></li>
+    </ul>
+    <span class="footer-note">Not affiliated with Mojang or Microsoft.</span>
+  </div>
+</footer>
+
+<script>
+  // ── PARTICLE CANVAS ──
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x  = Math.random() * canvas.width;
+      this.y  = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3 - 0.15;
+      this.a  = Math.random() * 0.35 + 0.05;
+      this.r  = Math.random() * 1.5 + 0.5;
+      this.life = 0;
+      this.maxLife = Math.random() * 250 + 120;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.life++;
+      if (this.life > this.maxLife || this.y < -10) this.reset();
+    }
+    draw() {
+      const t = this.life / this.maxLife;
+      const alpha = this.a * Math.sin(t * Math.PI);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(208, 20, 44, ${alpha})`;
+      ctx.fill();
+    }
+  }
+
+  function initParticles() {
+    particles = Array.from({ length: 60 }, () => new Particle());
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+  }
+
+  const heroSection = document.querySelector('.hero');
+  const ro = new ResizeObserver(() => {
+    canvas.width  = heroSection.offsetWidth;
+    canvas.height = heroSection.offsetHeight;
+  });
+  ro.observe(heroSection);
+  canvas.width  = heroSection.offsetWidth;
+  canvas.height = heroSection.offsetHeight;
+  initParticles();
+  animateParticles();
+
+  // ── SCROLL REVEAL ──
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        // stagger cards in same parent
+        const siblings = [...e.target.parentElement.querySelectorAll('.reveal:not(.visible)')];
+        const idx = siblings.indexOf(e.target);
+        setTimeout(() => {
+          e.target.classList.add('visible');
+        }, Math.min(idx * 80, 320));
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ── NAV ACTIVE STATE ──
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 120;
+    navLinks.forEach(a => {
+      const sec = document.querySelector(a.getAttribute('href'));
+      if (sec && y >= sec.offsetTop && y < sec.offsetTop + sec.offsetHeight) {
+        a.style.color = 'var(--ruby-bright)';
+      } else {
+        a.style.color = '';
+      }
+    });
+  });
+</script>
+</body>
+</html>
