@@ -16,6 +16,7 @@ public class Blink extends Module implements PacketSendListener {
         super("Blink", "Suspends movement packets and sends them all at once", Category.COMBAT);
     }
 
+
     @Override
     public void onEnable() {
         RadiumClient.getEventManager().add(PacketSendListener.class, this);

@@ -11,6 +11,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class RegionMapComponent {
     private final MinecraftClient mc = RadiumClient.mc;
     private final MapDataManager mapData;

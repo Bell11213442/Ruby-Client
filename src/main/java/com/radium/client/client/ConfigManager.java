@@ -29,6 +29,7 @@ public class ConfigManager {
     public ConfigManager() {
         if (RadiumClient.mc != null) {
             File radiumDir = new File(RadiumClient.mc.runDirectory, "radium");
+
             if (!radiumDir.exists()) {
                 radiumDir.mkdirs();
             }

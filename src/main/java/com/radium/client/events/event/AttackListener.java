@@ -16,6 +16,9 @@ public interface AttackListener extends Listener {
             listeners.forEach(e -> e.onAttack(this));
         }
 
+
+
+
         @Override
         public Class<AttackListener> getListenerType() {
             return AttackListener.class;

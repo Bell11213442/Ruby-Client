@@ -22,6 +22,7 @@ public interface OpenScreenListener extends Listener {
             listeners.forEach(e -> e.onOpenScreen(this));
         }
 
+
         @Override
         public Class<OpenScreenListener> getListenerType() {
             return OpenScreenListener.class;

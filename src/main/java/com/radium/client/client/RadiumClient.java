@@ -28,6 +28,7 @@ public final class RadiumClient {
     public static MinecraftClient mc;
     public static volatile RadiumClient instance;
     public static String ssid;
+
     public static String username;
     public static CapeManager capeManager;
     public static String discordId = "";

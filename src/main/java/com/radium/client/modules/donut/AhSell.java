@@ -19,6 +19,7 @@ public class AhSell extends Module {
     private int guiActionDelay = 0;
 
 
+
     public AhSell() {
         super("AhSell", "Automatically sells items from your hotbar.", Category.DONUT);
         addSettings(sellPrice, delay);

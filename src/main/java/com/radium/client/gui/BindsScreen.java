@@ -23,6 +23,7 @@ public class BindsScreen extends Screen {
         super(Text.literal("Keybinds"));
     }
 
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 

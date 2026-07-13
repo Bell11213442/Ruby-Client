@@ -16,6 +16,7 @@ public class SearchBar {
     public void render(DrawContext context, int x, int y, int width, float animationProgress) {
         int height = 20;
 
+
         int bgColor = editor.isActive() ?
                 RadiumGuiTheme.applyAlpha(RadiumGuiTheme.getHoverColor(),
                         animationProgress * RadiumGuiTheme.HOVER_ALPHA) :

@@ -18,6 +18,7 @@ public class ModuleManager {
         if (module == null) {
             return;
         }
+
         modules.add(module);
     }
 

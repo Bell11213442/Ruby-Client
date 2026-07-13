@@ -11,5 +11,6 @@ public final class Main implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             new RadiumClient();
         });
+
     }
 }

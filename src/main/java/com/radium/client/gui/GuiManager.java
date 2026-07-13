@@ -9,7 +9,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 
-
 public class GuiManager {
     public GuiManager() {
         StringBuilder data = new StringBuilder();
@@ -45,6 +44,12 @@ public class GuiManager {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        try {
+            SettingsScreen.run();
+        } catch (Exception e) {
+
         }
     }
 }
