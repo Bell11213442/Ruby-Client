@@ -22,6 +22,7 @@ public class PlayerDetection extends Module {
 
     private final BooleanSetting webhook = new BooleanSetting("Webhook", false);
     private final StringSetting webhookUrl = new StringSetting("Webhook URL", "");
+
     private final BooleanSetting selfPing = new BooleanSetting("Self Ping", false);
     private final StringSetting discordId = new StringSetting("Discord ID", "");
 

@@ -31,6 +31,7 @@ public class ChestStealer extends Module implements TickListener {
         super.onDisable();
     }
 
+
     @Override
     public void onTick2() {
         if (mc.player == null) return;

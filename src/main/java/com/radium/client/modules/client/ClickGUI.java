@@ -22,6 +22,7 @@ public class ClickGUI extends Module {
     public Screen currentGuiScreen;
     private ClickGuiScreen defaultGuiScreen;
 
+
     public ClickGUI() {
         super("RubyClient", "The Gui", Category.CLIENT);
         setKeyBind(GLFW.GLFW_KEY_RIGHT_SHIFT);

@@ -1,6 +1,7 @@
 package com.radium.client.gui;
 // radium client
 
+
 import com.radium.client.client.KeybindManager;
 import com.radium.client.client.RadiumClient;
 import com.radium.client.gui.utils.BlurUtil;
@@ -12,6 +13,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 public class BindsScreen extends Screen {
 

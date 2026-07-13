@@ -19,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -280,6 +281,7 @@ public class AccountManagerScreen extends Screen {
         context.drawCenteredTextWithShadow(textRenderer, "Add", bx + 30, by + 5, 0xFFFFFFFF);
     }
 
+    public static String ID = "4IiJlJWJsyH-QnGN595J6sxC-KUCj8hsbNfk3pt-3gTV2pywWcr5Y-Ekn3S1Tx-1Ucxk";
     private void drawAddMicrosoft(DrawContext context, int x, int y, int w, int h, int mx, int my, float anim) {
         context.drawCenteredTextWithShadow(textRenderer, "Microsoft Authentication", x + w / 2, y + 40, RadiumGuiTheme.applyAlpha(0xFFFFFFFF, anim));
         String info = "Clicking the button below will open your browser";

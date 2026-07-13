@@ -125,6 +125,7 @@ public class StashFinder extends Module {
             isCriticalSpawner = true;
             detectionReason = "Spawner(s) detected (Critical mode)";
         } else if (totalStorage >= minimumStorageCount.getValue().intValue()) {
+
             isStash = true;
             detectionReason = "Storage threshold reached (" + totalStorage + " blocks)";
         }

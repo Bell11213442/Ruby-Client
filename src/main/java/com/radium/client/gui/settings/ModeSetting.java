@@ -1,6 +1,7 @@
 package com.radium.client.gui.settings;
 // radium client
 
+
 public class ModeSetting<T extends Enum<T>> extends Setting<T> {
     private final Class<T> enumClass;
     private String description;

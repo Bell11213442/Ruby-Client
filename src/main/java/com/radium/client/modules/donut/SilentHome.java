@@ -22,6 +22,7 @@ public class SilentHome extends Module implements TickListener {
     private final BooleanSetting delHome = new BooleanSetting("Delete Previous Home", true);
     private final NumberSetting home = new NumberSetting("Home Slot", 1, 1, 5, 1);
 
+
     private boolean wasKeyPressed = false;
     private boolean suppressActionBar = false;
     private int suppressTicks = 0;

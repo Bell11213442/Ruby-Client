@@ -20,6 +20,7 @@ public final class Freecam extends Module implements TickListener, GameRenderLis
     public final Vector3d previousPosition = new Vector3d();
     private final NumberSetting speed = new NumberSetting("Speed", 5, 1, 20, 0.1);
     public float yaw;
+
     public float pitch;
     public float previousYaw;
     public float previousPitch;

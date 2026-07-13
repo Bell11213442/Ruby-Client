@@ -31,6 +31,7 @@ public class AnchorMacro extends Module implements TickListener {
     private final NumberSetting totemSlot = new NumberSetting("Totem Slot", 1.0, 1.0, 9.0, 1.0);
     private final BooleanSetting switchBackToAnchor = new BooleanSetting("Switch Back To Anchor", true);
     private final NumberSetting switchBackDelay = new NumberSetting("Switch Back Delay", 5.0, 0.0, 20.0, 1.0);
+
     private final BooleanSetting pauseOnKill = new BooleanSetting("Pause On Kill", true);
     private final NumberSetting pauseDelay = new NumberSetting("Pause Delay", 2.0, 0.5, 10.0, 0.5);
 

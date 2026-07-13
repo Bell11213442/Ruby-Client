@@ -29,6 +29,7 @@ public final class InvTotem extends Module implements GameRenderListener {
     private boolean justOpenedInventory = false;
 
     public InvTotem() {
+
         super("Inv Totem", "Automatically equips totems from your inventory", Category.COMBAT);
         this.addSettings(mode, autoOpen, stayOpenFor);
     }

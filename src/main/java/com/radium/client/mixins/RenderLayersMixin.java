@@ -18,6 +18,7 @@ public class RenderLayersMixin {
         SeeThroughWalls module = RadiumClient.getModuleManager().getModule(SeeThroughWalls.class);
         if (module != null && module.isEnabled()) {
             if (module.shouldMakeInvisible(state, null)) { // Use shouldMakeInvisible without position
+
                 if (module.getOpacityFloat() < 1.0f) {
                     cir.setReturnValue(RenderLayer.getTranslucent());
                 }

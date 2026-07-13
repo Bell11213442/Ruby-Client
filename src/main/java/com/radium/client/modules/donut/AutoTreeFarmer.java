@@ -44,6 +44,7 @@ public class AutoTreeFarmer extends Module implements TickListener, GameRenderLi
     private BlockPos targetPodzol = null;
     private int currentSaplingIndex = 0;
     private RotateCharacter rotateChar;
+
     private int waitTicks = 0;
     private int previousSlot = -1;
     private boolean isPlacing = false;

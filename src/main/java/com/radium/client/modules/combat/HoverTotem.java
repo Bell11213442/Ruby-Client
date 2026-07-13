@@ -21,6 +21,7 @@ public class HoverTotem extends Module implements TickListener {
     private final BooleanSetting autoInvOpen = new BooleanSetting("Auto Inv Open", false);
 
     private boolean shouldOpenInv = false;
+
     private boolean totemEquipped = false;
     private boolean wasAutoOpened = false;
 

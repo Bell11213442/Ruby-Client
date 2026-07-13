@@ -24,6 +24,7 @@ public class AhSell extends Module {
         addSettings(sellPrice, delay);
     }
 
+
     @Override
     public void onTick() {
         if (mc.player == null || mc.world == null || mc.interactionManager == null) {

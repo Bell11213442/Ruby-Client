@@ -24,6 +24,7 @@ public class AutoReconnect extends Module {
 
     public void setLastServer(ServerAddress address, ServerInfo info) {
         this.lastServerAddress = address;
+
         this.lastServerInfo = info;
     }
 

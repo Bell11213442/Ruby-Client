@@ -19,6 +19,7 @@ public class FakePlayer extends Module {
     public final NumberSetting maxFakePlayers = new NumberSetting("Max Players", 5.0, 1.0, 20.0, 1.0);
     public final NumberSetting spawnDistance = new NumberSetting("Spawn Distance", 3.0, 1.0, 10.0, 0.5);
     public final StringSetting playerName = new StringSetting("Player Name", "Steve");
+
     public final BooleanSetting copyRotation = new BooleanSetting("Copy Rotation", true);
     public final BooleanSetting copyPose = new BooleanSetting("Copy Pose", true);
 

@@ -33,6 +33,7 @@ public class RTPBaseFinder extends Module implements GameRenderListener {
     boolean isRotateDown = false;
     private long worldNotNullSince = -1;
     private boolean wasWorldNull = true;
+
     private boolean pendingRotation = false;
     private boolean firstRotationAfterEnable = true;
 

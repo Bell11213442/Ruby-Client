@@ -7,3 +7,4 @@ public class ChatUtils extends Module {
         super("ChatUtils", "Extends chat history and persists it across servers.", Category.MISC);
     }
 }
+

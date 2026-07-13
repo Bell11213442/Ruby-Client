@@ -20,6 +20,7 @@ public class ClientPlayNetworkHandlerMixin {
         HoverTotem hoverTotem = RadiumClient.getModuleManager().getModule(HoverTotem.class);
         if (hoverTotem != null && hoverTotem.isEnabled()) {
             hoverTotem.onPacketReceive(packet);
+
         }
 
         AutoLog autoLog = RadiumClient.getModuleManager().getModule(AutoLog.class);
